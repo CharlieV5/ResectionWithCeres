@@ -1,12 +1,22 @@
-#include "ceres/ceres.h"
-#include "residual.h"
+#include "ResectionResidual.h"
+#include "Resection.h"
+#include "ceres\ceres.h"
 using ceres::AutoDiffCostFunction;
 using ceres::CostFunction;
 using ceres::Problem;
 using ceres::Solver;
 using ceres::Solve;
 
-int main(int argc, char** argv)
+Resection::Resection()
+{
+}
+
+
+Resection::~Resection()
+{
+}
+
+void Resection::doResection()
 {
 	double x[4] = { -86.15, -53.4, -14.78, 10.46 };
 	double y[4] = { -68.99, 82.21, -76.63, 64.43 };
@@ -16,16 +26,16 @@ int main(int argc, char** argv)
 
 	int count = 4;
 	double resection_params[6] = { 0 };   // initial value
-	for (int i = 0; i<count; i++)
+	for (int i = 0; i < count; i++)
 	{
 		resection_params[0] += X[i]; //X
 		resection_params[1] += Y[i]; //Y
-	}	
+	}
 
 	resection_params[0] /= count; // set the initial value of X 
 	resection_params[1] /= count; // set the initial value of Y
 
-	double f = 153.24/1000.0; //focal length, unit: meter
+	double f = 153.24 / 1000.0; //focal length, unit: meter
 	double m = 5.0e4;// map scale is 1£º50000
 	resection_params[2] = m * f;// estimate the height
 
@@ -46,11 +56,10 @@ int main(int argc, char** argv)
 	Solve(m_options, &problem, &m_summary);
 
 	// output the computed results
-	fprintf(stdout, "Xs=%.3lfm Ys=%.3lfm Zs=%.3lfm\n", resection_params[0], resection_params[1], resection_params[2]);
-	fprintf(stdout, "phi=%.3lf¡ã omega=%.3lf¡ã kappa=%.3lf¡ã\n", 
+	fprintf(stdout, "resection\n");
+	fprintf(stdout, "Xcw=%.3lfm Ycw=%.3lfm Zcw=%.3lfm\n", resection_params[0], resection_params[1], resection_params[2]);
+	fprintf(stdout, "phi=%.3lf¡ã omega=%.3lf¡ã kappa=%.3lf¡ã\n",
 		resection_params[3] / EIGEN_PI * 180, resection_params[4] / EIGEN_PI * 180, resection_params[5] / EIGEN_PI * 180);
-	fprintf(stdout, "%s\n", m_summary.FullReport().c_str());
 
-    return 0;
 }
 
